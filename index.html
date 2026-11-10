@@ -1,0 +1,416 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Carta Cuarzo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna en celular, dos desde 760px. Barra fija con buscador y categorias. Cada producto es una fila con un espacio cuadrado para la foto a la izquierda. */
+:root {
+  --bg: #E9ECE8;
+  --surface: #F6F7F5;
+  --ink: #171B19;
+  --muted: #5C6660;
+  --line: #CFD5CF;
+  --accent: #2F6B45;
+  --accent-ink: #FFFFFF;
+  --tag: #DCE6DC;
+  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101311;
+    --surface: #171C19;
+    --ink: #EDF0EC;
+    --muted: #9AA59E;
+    --line: #2A312D;
+    --accent: #7FC596;
+    --accent-ink: #0E1A12;
+    --tag: #223028;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101311;
+  --surface: #171C19;
+  --ink: #EDF0EC;
+  --muted: #9AA59E;
+  --line: #2A312D;
+  --accent: #7FC596;
+  --accent-ink: #0E1A12;
+  --tag: #223028;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 10;
+}
+.wrap { max-width: 1040px; margin-inline: auto; }
+
+.demo-strip {
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 8px 16px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.top { padding-block: 32px 20px; }
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3rem, 14vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.meta { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+
+/* Barra fija */
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  background: var(--bg);
+  padding-block: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.bar-inner { display: flex; flex-direction: column; gap: 10px; }
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 14px;
+}
+.search svg { flex: none; width: 18px; height: 18px; color: var(--muted); }
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  padding: 12px 0;
+  outline: none;
+}
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.search input::placeholder { color: var(--muted); }
+
+.row2 { display: flex; align-items: center; gap: 10px; }
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+  padding-block: 2px;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip:focus-visible, .toggle input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.toggle { flex: none; display: inline-flex; align-items: center; cursor: pointer; }
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.toggle span {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px dashed var(--muted);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.toggle input:checked + span { background: var(--tag); border: 1px solid var(--accent); color: var(--ink); }
+
+/* Contenido */
+.count { margin: 16px 0 0; font-size: 13px; color: var(--muted); min-height: 20px; }
+.section { padding-top: 28px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding-bottom: 6px; }
+.section h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.section-note { margin: 0; font-size: 13px; color: var(--muted); }
+
+.items { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 40px; }
+.item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.ph {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 7px, var(--line) 7px 8px),
+    var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  padding: 4px;
+}
+.ph b { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.ph code { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 10px; color: var(--muted); overflow-wrap: anywhere; line-height: 1.2; }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--surface); }
+
+.item-body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.item h3 { margin: 0; font-size: 1.0625rem; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.price { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent); }
+.desc { margin: 0; font-size: 14px; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag { font-size: 12px; font-weight: 500; padding: 2px 9px; border-radius: 999px; background: var(--tag); color: var(--ink); }
+
+.empty { margin: 48px 0; padding: 28px 20px; border: 1px dashed var(--line); border-radius: 10px; text-align: center; color: var(--muted); }
+.empty strong { display: block; color: var(--ink); font-size: 1.0625rem; margin-bottom: 4px; }
+
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+footer p { margin: 0; }
+
+@media (min-width: 760px) {
+  .items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bar-inner { flex-direction: row; align-items: center; }
+  .search { width: 300px; flex: none; }
+  .row2 { flex: 1; min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip { transition: none; }
+}
+</style>
+
+<div class="demo-strip">Carta demo · productos y precios de ejemplo</div>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Café de especialidad</p>
+    <h1>Cuarzo</h1>
+    <p class="meta">Tu dirección acá · Todos los días de 8 a 20 h</p>
+  </header>
+
+  <div class="bar">
+    <div class="bar-inner">
+      <label class="search" for="q">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar en la carta" autocomplete="off" enterkeyhint="search">
+      </label>
+      <div class="row2">
+        <div class="chips" id="chips" role="group" aria-label="Categorías"></div>
+        <label class="toggle"><input type="checkbox" id="tacc"><span>Sin TACC</span></label>
+      </div>
+    </div>
+  </div>
+
+  <p class="count" id="count" aria-live="polite"></p>
+  <main id="menu"></main>
+
+  <footer>
+    <p>Esta es una carta de demostración. Los nombres, descripciones y precios son de ejemplo.</p>
+    <p>Precios en pesos argentinos, IVA incluido.</p>
+  </footer>
+</div>
+
+<script>
+/* Para cargar una foto: guardá la imagen como fotos/<id>.jpg junto a este archivo.
+   El <id> es el que aparece en cada espacio de foto. */
+var FOTOS = 'fotos/';
+var EXT = '.jpg';
+
+var MENU = [
+  { id: 'cafe', nombre: 'Café', nota: 'Leche de vaca. Leche vegetal +$1.500.', items: [
+    { id: 'espresso', n: 'Espresso', d: 'Un shot corto e intenso, café de origen único.', p: 4200 },
+    { id: 'doppio', n: 'Espresso doppio', d: 'Doble dosis, mismo cuerpo, más tamaño.', p: 4800 },
+    { id: 'americano', n: 'Americano', d: 'Espresso doble alargado con agua caliente.', p: 4900 },
+    { id: 'cortado', n: 'Cortado', d: 'Espresso con un toque de leche texturizada.', p: 5200 },
+    { id: 'flat-white', n: 'Flat white', d: 'Doble espresso y leche con microespuma.', p: 6000 },
+    { id: 'latte', n: 'Latte', d: 'Espresso con mucha leche cremosa.', p: 6200 },
+    { id: 'capuchino', n: 'Capuchino', d: 'Espresso, leche y una capa de espuma.', p: 5800 },
+    { id: 'moka', n: 'Moka', d: 'Espresso, chocolate y leche vaporizada.', p: 6600 }
+  ]},
+  { id: 'frios', nombre: 'Fríos', nota: '', items: [
+    { id: 'iced-latte', n: 'Iced latte', d: 'Espresso doble, leche fría y hielo.', p: 6600 },
+    { id: 'iced-americano', n: 'Iced americano', d: 'Espresso doble sobre agua fría y hielo.', p: 5600 },
+    { id: 'cold-brew', n: 'Cold brew', d: 'Café infusionado en frío durante 16 horas.', p: 6200 },
+    { id: 'espresso-tonic', n: 'Espresso tonic', d: 'Agua tónica, hielo, espresso y cáscara de naranja.', p: 6800 },
+    { id: 'iced-caramelo', n: 'Iced caramelo salado', d: 'Latte frío con caramelo casero y flor de sal.', p: 7400 }
+  ]},
+  { id: 'matcha', nombre: 'Matcha', nota: 'Matcha ceremonial. Se puede pedir frío o caliente.', items: [
+    { id: 'matcha-latte', n: 'Matcha latte', d: 'Matcha batido con leche.', p: 7200 },
+    { id: 'matcha-coco', n: 'Matcha de coco', d: 'Matcha con crema de coco y un toque de verbena.', p: 7600 },
+    { id: 'matcha-arandanos', n: 'Matcha de arándanos', d: 'Matcha, leche y puré de arándanos.', p: 8200 },
+    { id: 'matcha-mango', n: 'Matcha de mango', d: 'Matcha, leche y puré de mango.', p: 8200 }
+  ]},
+  { id: 'protein', nombre: 'Protein coffee', nota: '', items: [
+    { id: 'protein-vainilla', n: 'Protein latte de vainilla', d: 'Espresso, vainilla y leche con proteína.', p: 7600, tags: ['15 g de proteína'] },
+    { id: 'protein-canela', n: 'Protein latte de canela', d: 'Espresso, canela y leche con proteína.', p: 7900, tags: ['15 g de proteína'] },
+    { id: 'protein-cacao', n: 'Protein latte de cacao', d: 'Espresso, cacao amargo y leche con proteína.', p: 8200, tags: ['15 g de proteína'] }
+  ]},
+  { id: 'brunch', nombre: 'Brunch', nota: 'Pan de masa madre propio.', items: [
+    { id: 'tostada-palta', n: 'Tostada de palta', d: 'Pan de masa madre, palta, limón, semillas y mix de verdes.', p: 11500 },
+    { id: 'huevos-revueltos', n: 'Huevos revueltos cremosos', d: 'Huevos, queso mascarpone y pan de masa madre.', p: 11000 },
+    { id: 'yogur-granola', n: 'Yogur con granola', d: 'Yogur griego, granola casera, frutas de estación y miel.', p: 10000 },
+    { id: 'tostado', n: 'Tostado de jamón y queso', d: 'Pan de molde, jamón cocido y queso tybo, bien dorado.', p: 12500 },
+    { id: 'sandwich-huevo', n: 'Sándwich de huevo', d: 'Pan de molde, huevo, queso y mayonesa japonesa.', p: 15500 },
+    { id: 'tostada-ricota', n: 'Tostada de ricota y miel', d: 'Ricota fresca, miel y nueces sobre masa madre.', p: 9500 }
+  ]},
+  { id: 'panaderia', nombre: 'Panadería', nota: '', items: [
+    { id: 'medialuna', n: 'Medialuna', d: 'De manteca, horneada cada mañana.', p: 3600 },
+    { id: 'croissant', n: 'Croissant', d: 'Hojaldrado, de manteca.', p: 5400 },
+    { id: 'roll-canela', n: 'Roll de canela', d: 'Masa suave, canela y glaseado.', p: 5600 },
+    { id: 'chipa', n: 'Chipá', d: 'Queso y almidón de mandioca, recién salido del horno.', p: 4400, tags: ['Sin TACC'] },
+    { id: 'cookie', n: 'Cookie de chips de chocolate', d: 'Vainilla, manteca y chips de chocolate semiamargo.', p: 5800 },
+    { id: 'brownie', n: 'Brownie', d: 'Húmedo, de chocolate intenso.', p: 6000 },
+    { id: 'budin-limon', n: 'Budín de limón', d: 'Con glasé de limón.', p: 5200 }
+  ]},
+  { id: 'extras', nombre: 'Extras', nota: '', items: [
+    { id: 'extra-avena', n: 'Leche de avena', d: 'Para cualquier bebida.', p: 1500 },
+    { id: 'extra-coco', n: 'Leche de coco', d: 'Para cualquier bebida.', p: 1500 },
+    { id: 'extra-shot', n: 'Shot extra de espresso', d: 'Para cualquier bebida.', p: 1800 }
+  ]}
+];
+
+var state = { cat: 'todo', q: '', tacc: false };
+var chipsEl = document.getElementById('chips');
+var menuEl = document.getElementById('menu');
+var countEl = document.getElementById('count');
+var qEl = document.getElementById('q');
+var taccEl = document.getElementById('tacc');
+
+function norm(s) {
+  return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+function money(n) {
+  return '$ ' + n.toLocaleString('es-AR');
+}
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function drawChips() {
+  var all = [{ id: 'todo', nombre: 'Todo' }].concat(MENU);
+  chipsEl.innerHTML = all.map(function (c) {
+    return '<button type="button" class="chip" data-cat="' + c.id + '" aria-pressed="' + (state.cat === c.id) + '">' + esc(c.nombre) + '</button>';
+  }).join('');
+}
+
+function itemHtml(it) {
+  var tags = (it.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+  return '<article class="item">' +
+    '<div class="ph"><b>Foto</b><code>' + esc(it.id) + '</code>' +
+    '<img src="' + FOTOS + esc(it.id) + EXT + '" alt="' + esc(it.n) + '" loading="lazy" onerror="this.remove()"></div>' +
+    '<div class="item-body">' +
+      '<div class="item-top"><h3>' + esc(it.n) + '</h3><span class="price">' + money(it.p) + '</span></div>' +
+      '<p class="desc">' + esc(it.d) + '</p>' +
+      (tags ? '<div class="tags">' + tags + '</div>' : '') +
+    '</div></article>';
+}
+
+function render() {
+  var q = norm(state.q.trim());
+  var total = 0;
+  var html = MENU.filter(function (c) {
+    return state.cat === 'todo' || state.cat === c.id;
+  }).map(function (c) {
+    var list = c.items.filter(function (it) {
+      if (state.tacc && !(it.tags || []).includes('Sin TACC')) return false;
+      if (!q) return true;
+      return norm(it.n + ' ' + it.d + ' ' + c.nombre).indexOf(q) !== -1;
+    });
+    if (!list.length) return '';
+    total += list.length;
+    return '<section class="section" aria-labelledby="h-' + c.id + '">' +
+      '<div class="section-head"><h2 id="h-' + c.id + '">' + esc(c.nombre) + '</h2>' +
+      (c.nota ? '<p class="section-note">' + esc(c.nota) + '</p>' : '') + '</div>' +
+      '<div class="items">' + list.map(itemHtml).join('') + '</div></section>';
+  }).join('');
+
+  if (!total) {
+    html = '<div class="empty"><strong>No encontramos nada</strong>' +
+      (state.q.trim() ? 'No hay resultados para “' + esc(state.q.trim()) + '”. ' : '') +
+      'Probá con otra palabra o quitá los filtros.</div>';
+    countEl.textContent = '';
+  } else {
+    countEl.textContent = total + (total === 1 ? ' producto' : ' productos');
+  }
+  menuEl.innerHTML = html;
+}
+
+chipsEl.addEventListener('click', function (e) {
+  var b = e.target.closest('.chip');
+  if (!b) return;
+  state.cat = b.getAttribute('data-cat');
+  drawChips();
+  render();
+});
+qEl.addEventListener('input', function () { state.q = qEl.value; render(); });
+taccEl.addEventListener('change', function () { state.tacc = taccEl.checked; render(); });
+
+drawChips();
+render();
+</script>
+</body></html>
